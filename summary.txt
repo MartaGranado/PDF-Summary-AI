@@ -1,0 +1,18 @@
+ The Raspberry Pi Pico is a low-cost microcontroller board with a RP2040 chip, featuring a dual-core Cortex M0+
+processor, 264kB SRAM, and 2MB QSPI Flash. It has 30 GPIO pins, ADC inputs, digital peripherals, and 2 Programmable IO
+(PIO) blocks. The board is licensed under Creative Commons Attribution-NoDerivatives 4.0 International (CC BY-ND) and is
+compatible with Raspberry Pi Ltd's Standard Terms and Conditions.  The Raspberry Pi Pico Datasheet provides detailed
+information about the board's pinout, components, and power supply. The board's Rev3 version features an on-board buck-
+boost SMPS, allowing it to generate 3.3V for RP2040 and external circuitry from a wide range of input voltages. It can
+be powered via micro-USB or an external power source (1.8-5.5V range).  The board's 2MB QSPI Flash memory can be
+programmed or reprogrammed using the Serial Wire Debug (SWD) port or through the USB Mass Storage Device mode. The
+RP2040 chip has 30 available GPIO pins, with 26 exposed via the Pico header pins. The power consumption, temperature
+range, and VBUS are also specified.  The board's SMPS exhibits ripple at light load, affecting the ADC supply. To
+improve efficiency during infrequent ADC measurements, the low-power Pulse Frequency Modulation (PFM) mode can be re-
+enabled. An external 3.0V shunt reference or a separate power source can be used for better ADC accuracy.  The board
+features a power supply system with a crude battery voltage monitor and a buck-boost SMPS for maintaining a 3.3V output
+from 1.8V to 5.5V input. The RP2040 microcontroller has an on-chip regulator that powers its digital core at 1.1V. The
+Pico can be used in USB Host mode, requiring 5V to be supplied to the VBUS pin.  The Raspberry Pi Pico will be available
+until at least January 2028, and its datasheet and firmware/software are regularly updated. The "Getting started with
+Raspberry Pi Pico" series of books offers guidance on loading programs onto the Raspberry Pi Pico board and installing
+the C/C++ SDK. The Raspberry Pi Pico design files are openly available.

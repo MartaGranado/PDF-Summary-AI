@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Summary Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    #drag-area {
+      border: 2px dashed #007bff;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #drag-area.drag-over {
+      border-color: #28a745;
+      background-color: #f8f9fa;
+    }
+    input[type="file"], input[type="text"] {
+      margin-top: 10px;
+      padding: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #statusMessage {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>PDF Summary Generator</h1>
+  <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+    <div id="drag-area" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+      <p>Drag and drop your PDF file here, or click to select.</p>
+      <input type="file" id="fileInput" name="file" onchange="handleFileSelect(event)" style="display: none;">
+    </div>
+    <input type="text" name="summary_name" placeholder="Enter summary file name (e.g. dogs)" required>
+    <button id="submitBtn" type="button" onclick="submitForm()" disabled>Summarize</button>
+  </form>
+
+  <div id="statusMessage">⏳ Please wait while the summary is being generated...</div>
+
+  <script>
+    const dragArea = document.getElementById('drag-area');
+    const fileInput = document.getElementById('fileInput');
+    const summaryInput = document.querySelector('input[name="summary_name"]');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusMessage = document.getElementById('statusMessage');
+
+    dragArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', validateForm);
+    summaryInput.addEventListener('input', validateForm);
+
+    function handleFileSelect(event) {
+      const fileName = event.target.files[0].name;
+      dragArea.innerHTML = `<p>${fileName}</p>`;
+      validateForm();
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      dragArea.classList.add('drag-over');
+    }
+
+    function handleDragLeave(event) {
+      event.preventDefault();
+      dragArea.classList.remove('drag-over');
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      const file = event.dataTransfer.files[0];
+      if (file) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+        dragArea.innerHTML = `<p>${file.name}</p>`;
+      }
+      dragArea.classList.remove('drag-over');
+      validateForm();
+    }
+
+    function validateForm() {
+      const fileSelected = fileInput.files.length > 0;
+      const summaryName = summaryInput.value.trim();
+      submitBtn.disabled = !(fileSelected && summaryName);
+    }
+
+    async function submitForm() {
+      const file = fileInput.files[0];
+      const summaryName = summaryInput.value.trim();
+
+      if (!file || !summaryName) {
+        alert("Please select a file and enter a summary name.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("summary_name", summaryName);
+
+      // Show status message
+      statusMessage.style.display = 'block';
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = `${summaryName}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+      } catch (err) {
+        alert("Error: " + err.message);
+      } finally {
+        statusMessage.style.display = 'none';
+        submitBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
